@@ -1,0 +1,26 @@
+CPU: S5PV210
+内存: 512M DDR2 SDRAM
+Flash: 4GB iNand
+LCD: 7寸, 800*400
+触摸屏: 电容触摸屏
+
+刷系统：
+    - 常用串口监视软件：超级终端，SecureCRT,minicom
+    - 安装USB转串口驱动PL2303
+
+0.破坏iNand中的bootloader，以从SD2启动 
+    - busybox dd if=/dev/zero of=/dev/block/mmcblk0 bs=512 seek=1 count=1 conv=sync 
+        - 把板载的iNand的第一个扇区用全0来填充，这样板载iNand的bootloader的开始第一个扇区就被破坏了；启动时iROM还是会先从iNand中读取前16KB，计算校验和，校验失败所以启动失败；会去从SD2执行启动
+    - sync
+1.制作启动SD卡，（其实就是烧录uboot到SD卡中）
+    - windows下：使用九鼎创展SD卡烧写工具；将uboot烧写到SD卡中。
+2.fastboot(windows)
+    - 是uboot中用来快速下载镜像的一个命令
+    - 连接USB OTG口，通过usb下载
+    - 需要安装驱动x210_android_driver
+    ①uboot中fastboot，打印提示分区
+    ②windows下fastboot.exe devices,查看是否连接设备
+    ③fastboot.exe flash bootloader uboot
+    ④fastboot.exe flash kernel zimage-android
+    ⑤fastboot.exe flash system x210.img
+    ⑥fastboot.exe reboot
